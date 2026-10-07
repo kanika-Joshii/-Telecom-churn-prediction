@@ -1,73 +1,63 @@
-# -Telecom-churn-prediction
-Data science and Machine Learning project for Telecom churn prediction
-Predicting which telecom customers are likely to churn, using the IBM/Kaggle Telco Customer Churn dataset (7,043 customers, 21 columns).
+# 📊 Telco Customer Churn Prediction & Interactive Dashboard
 
-# Problem
+A complete end-to-end Machine Learning project designed to predict customer churn, uncover key behavioral drivers, and provide a real-time interactive web application for business stakeholders.
 
-Telecom companies lose revenue when customers leave. This project builds a classifier that flags customers at high risk of churning, so a business could target retention offers instead of guessing.
+---
 
-# Dataset
-Source: Telco Customer Churn (Kaggle)
-7,043 rows, 21 columns, one row per customer
-Target: Churn (Yes/No)
-Features cover demographics, account info (tenure, contract type, payment method), and subscribed services (internet, phone, streaming, tech support, etc.)
-Pipeline
+## 🚀 Live Demo
+You can view the live interactive Streamlit dashboard deployed on Streamlit Community Cloud:  
+👉 **[https://m8tbrusyxwkmhl4eyczjhs.streamlit.app/]**
 
-The notebook runs top to bottom as a single linear pipeline. No step is optional — later steps depend on the output of earlier ones.
+---
 
-# 1. Load data
-Read WA_Fn-UseC_-Telco-Customer-Churn.csv into a DataFrame
-Confirm shape: 7,043 rows × 21 columns, one row per customer
-# 2. Clean
-Check and drop duplicate rows
-Drop customerID — it's an identifier, not a predictor
-TotalCharges was stored as a string because a handful of rows (new customers with 0 tenure) had blank values instead of numbers. Converted to numeric with pd.to_numeric(..., errors="coerce"), then filled the resulting NaNs with 0
-Mapped the target Churn from Yes/No to 1/0
-# 3. Exploratory Data Analysis (EDA)
-Computed overall churn rate
-Grouped churn rate by Contract and by InternetService to see which segments churn most
-Plotted:
-Churn distribution (pie chart) → churn_pie.png
-Churn rate for all 16 categorical features in one grid → churn_by_category.png
-Stacked bar counts (churned vs not) for the four features most linked to churn — contract, internet service, payment method, tech support → churn_counts.png
-# 4. Feature engineering
+## 📌 Project Overview
+Customer churn is one of the most critical metrics for subscription-based businesses. Retaining existing customers is significantly more cost-effective than acquiring new ones. This project builds a predictive classification model using the classic Telco Customer Churn dataset to identify high-risk customers, allowing businesses to take proactive retention measures.
 
-Four new features, all derived from existing columns:
+---
 
-tenure_group: tenure binned into 0-1yr, 1-2yr, 2-4yr, 4-5yr, 5yr+
-num_services: count of "Yes" across the 6 add-on service columns (online security, online backup, device protection, tech support, streaming TV, streaming movies)
-avg_monthly_spend: TotalCharges / tenure (tenure=0 replaced with 1 to avoid divide-by-zero)
-no_support_services: binary flag for customers with neither online security nor tech support — a common churn-risk segment
-# 5. Preprocessing
-Split features (X) and target (y)
-One-hot encoded all categorical columns with pd.get_dummies(drop_first=True)
-Dropped TotalCharges after engineering — it's ≈ tenure × MonthlyCharges, so keeping it alongside avg_monthly_spend would introduce multicollinearity
-Final feature count printed after encoding
-# 6. Train/test split + scaling + resampling
-80/20 train-test split, stratified on the target so both sets keep the same churn ratio
-Standardized features with StandardScaler (fit on train, applied to test — no leakage)
-Applied SMOTE only to the training set, after the split — the test set stays as real, untouched, imbalanced data, so test metrics reflect real-world performance, not oversampled performance
-# 7. Model comparison
-Trained three models on the SMOTE-balanced training data: Logistic Regression, Random Forest, Gradient Boosting
-Evaluated all three on the same untouched test set: accuracy, precision, recall, F1, ROC-AUC
-Ranked by ROC-AUC to pick the best candidate for tuning
-# 8. Hyperparameter tuning
-Ran GridSearchCV on Gradient Boosting over n_estimators (100, 200), learning_rate (0.05, 0.1), max_depth (2, 3, 4)
-5-fold cross-validation, scored on ROC-AUC
-Extracted the best estimator
-# 9. Final evaluation
-Scored the tuned model on the held-out test set: accuracy, precision, recall, F1, ROC-AUC
-Ran a separate 5-fold CV on the original (non-resampled) training data as a sanity check against the SMOTE-trained numbers
-# 10. Feature importance
-Pulled feature_importances_ from the tuned Gradient Boosting model
-Reported the top 12 features driving churn predictions
-Results
+## 🛠️ Tech Stack & Libraries
+* **Language:** Python 
+* **Data Manipulation & Analysis:** Pandas, NumPy
+* **Machine Learning:** Scikit-Learn (Random Forest, Preprocessing, Metrics)
+* **Data Visualization:** Matplotlib, Seaborn
+* **Interactive App Deployment:** Streamlit
 
-Final tuned Gradient Boosting model, evaluated on the held-out test set:
+---
 
-Metric	Score
-ROC-AUC	0.843
-F1	0.62
-Recall	0.72
-Precision	0.54
-5-fold CV ROC-AUC	0.846 ± 0.014
+## 🔄 Project Workflow
+
+### 1. Data Loading & Inspection
+* **Source Dataset:** IBM / Kaggle Telco Customer Churn dataset (`WA_Fn-UseC_-Telco-Customer-Churn.csv`).
+* Loaded data using Pandas and performed initial inspections to check data shapes, data types, and missing values.
+
+### 2. Data Cleaning & Preprocessing
+* **Handling Missing Values:** Cleaned whitespace and converted non-numeric strings in the `TotalCharges` column into numeric values, filling any resulting nulls appropriately.
+* **Feature Removal:** Dropped irrelevant identifier columns like `customerID` that do not contribute to predictive patterns.
+* **Target Encoding:** Mapped the target variable `Churn` (`Yes`/`No`) into binary format (`1`/`0`).
+* **Categorical Encoding:** Converted categorical features into numerical representation using one-hot encoding (`pd.get_dummies`) to prepare data for machine learning algorithms.
+
+### 3. Feature Engineering & Exploratory Data Analysis (EDA)
+* Analyzed relationships between customer features and churn rates. Key insights discovered:
+  * **Contract Type:** Month-to-month customers exhibit significantly higher churn rates compared to those on 1-year or 2-year contracts.
+  * **Internet Service:** Fiber optic users showed higher churn compared to DSL users, highlighting potential service or pricing pain points.
+  * **Tenure:** Newer customers (low tenure) are at a much higher risk of churning.
+
+### 4. Machine Learning Model Development
+* **Train-Test Split:** Split the dataset into training and testing sets (80/20 split) with a fixed random state for reproducibility.
+* **Feature Scaling:** Standardized numerical features using `StandardScaler` to ensure features like `MonthlyCharges` and `tenure` contribute equally.
+* **Model Training:** Trained a robust **Random Forest Classifier** to capture complex non-linear relationships and interactions between customer attributes.
+* **Evaluation Metrics:** Evaluated model performance using Accuracy, Precision, Recall, F1-Score, and ROC-AUC.
+
+### 5. Interactive Streamlit Dashboard (`churn_app.py`)
+Built a web application featuring:
+* **Real-Time Prediction Tab:** Allows users to modify customer profiles (Tenure, Monthly Charges, Contract type, Payment method, etc.) via sidebar sliders/dropdowns to instantly predict whether a customer is at risk of churning.
+* **EDA & Insights Tab:** Displays key business metrics (Total Customers, Overall Churn Rate, Average Charges) alongside dynamic visual charts analyzing churn patterns by contract and internet service.
+
+---
+
+## 📁 Repository Structure
+```text
+├── churn_app.py                  # Main Streamlit application code
+├── WA_Fn-UseC_-Telco-Customer-Churn.csv  # Dataset file
+├── requirements.txt              # Required dependencies for deployment
+└── README.md                     # Project documentation
